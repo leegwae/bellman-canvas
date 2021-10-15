@@ -1,9 +1,9 @@
 import { HemisphereLight, DirectionalLight } from 'three';
-import camera from './library/camera/index';
-import scene from './library/scene/index';
-import mesh from './library/plane/index';
-import renderer from './library/renderer/index';
-import model from './library/model/index';
+import camera from '@library/camera';
+import scene from '@library/scene';
+import plane from '@library/plane'
+import renderer from '@library/renderer'
+import model from '@library/model';
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
@@ -28,7 +28,7 @@ function init() {
   scene.add(dirLight);
 
   // ground
-  scene.add(mesh);
+  scene.add(plane);
 
   // model
   scene.add(model);
