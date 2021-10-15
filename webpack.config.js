@@ -8,9 +8,19 @@ module.exports = {
     rules: [
       {
         test: /\.ts?$/,
-        use: 'babel-loader',
+        loader: 'babel-loader',
         include: path.resolve(__dirname, 'src'),
         exclude: /node_modules/,
+      },
+      {
+        test: /\.(glb|gltf)$/,
+        use: {
+          loader: 'file-loader',
+          options: {
+            name: '[name].[ext]?[hash]',
+            publicPath: './dist/'
+          },
+        },
       },
     ],
   },
