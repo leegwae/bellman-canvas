@@ -7,9 +7,7 @@ import model from '@library/model';
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
-init();
-
-function init() {
+const init = async () => {
   // ================= [ light ] ====================================
   const hemiLight = new HemisphereLight(0xffffff, 0x444444);
   hemiLight.position.set(0, 20, 0);
@@ -31,7 +29,8 @@ function init() {
   scene.add(plane);
 
   // model
-  scene.add(model);
+  const gltf = await model.LoadGLTF("/Xbot.glb")
+  scene.add(gltf.scene);
 
   // camera
   camera.position.set(0, 2, 5);
@@ -47,16 +46,18 @@ function init() {
   animate();
 }
 
-function onWindowResize() {
+const onWindowResize = () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function animate() {
+const animate = () => {
   // Render loop
   requestAnimationFrame(animate);
 
   renderer.render(scene, camera);
 }
+
+init();
