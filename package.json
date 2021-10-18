@@ -26,7 +26,6 @@
     "webpack-dev-server": "^4.3.1"
   },
   "dependencies": {
-    "@pixiv/three-vrm": "^0.6.7",
     "three": "^0.133.1"
   }
 }
