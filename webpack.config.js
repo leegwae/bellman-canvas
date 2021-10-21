@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 module.exports = {
   mode: 'development',
@@ -27,12 +28,15 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.js'],
     symlinks: false,
-    alias: {
-      '@src': path.resolve(__dirname, './src'),
-      '@library': path.resolve(__dirname, './src/library'),
-    },
+    plugins: [
+      new TsConfigPathsPlugin(
+        {
+          configFile: path.resolve(__dirname, './tsconfig.json')
+        }
+      )
+    ],
   },
-  devtool: 'source-map',
+  devtool: 'inline-source-map',
   devServer: {
     static: './public',
     hot: true,
