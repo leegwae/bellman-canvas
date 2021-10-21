@@ -8,8 +8,30 @@ import model from '@library/model';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { VRM, VRMSchema } from '@pixiv/three-vrm';
 
-const init = async () => {
-  // ================= [ light ] ====================================
+// ============ [ 임시 상수 ] =======================
+const COURSE = '스쿼트';
+const MESSAGE = '손을 펴고 다리를 굽히고';
+const GOAL = 3;
+
+const createCircle = (parent: HTMLElement) => {
+  const circle = document.createElement('div');
+  circle.className = "circle";
+  parent.appendChild(circle);
+};
+
+const initContent = () => {
+  const course = document.getElementById('course');
+  if (course) course.innerText = COURSE;
+
+  const message = document.getElementById('message');
+  if (message) message.innerText = MESSAGE;
+
+  const count = document.getElementById('count');
+  if (count) [...Array(GOAL)].map(() => createCircle(count));
+}
+
+const initCanvas = async () => {
+  // light
   const dirLight = new THREE.DirectionalLight(0xffffff);
   dirLight.position.set(3, 10, 10);
   dirLight.castShadow = true;
@@ -81,4 +103,5 @@ const animate = (vrm: VRM) => {
   render()
 }
 
-init();
+initContent();
+initCanvas();
