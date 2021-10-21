@@ -1,3 +1,5 @@
+import '@src/style.scss';
+
 import * as THREE from 'three';
 import camera from '@library/camera';
 import scene from '@library/scene';
