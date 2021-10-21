@@ -56,8 +56,8 @@ const initCanvas = async () => {
   // camera
   camera.position.set(0, 2, 5);
   const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enablePan = false;
-  controls.enableZoom = false;
+  controls.enablePan = true;
+  controls.enableZoom = true;
   controls.target.set(0, 1.8, 0);
   controls.update();
 
