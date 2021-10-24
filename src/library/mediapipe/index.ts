@@ -1,8 +1,42 @@
 import camera_utils from "@mediapipe/camera_utils";
 import Pose from "@mediapipe/pose";
 
+type CurrentPose = {
+  raw: Pose.Results;
+  image: Pose.GpuBuffer;
+  hasPoseData: boolean;
+  HumanoidBoneAngle: { [key: string]: THREE.Euler };
+  debug: {
+    points: { x: number; y: number }[];
+  };
+};
+
+let CP: CurrentPose | undefined;
+
 const OnPoseResult = async (result: Pose.Results) => {
-  console.log(result);
+  const points = result.poseLandmarks?.map((p) => {
+    return {
+      x: p.x * 320,
+      y: p.y * 240,
+    };
+  });
+  CP = {
+    raw: result,
+    image: result.image,
+    hasPoseData: points ? true : false,
+    HumanoidBoneAngle: {},
+    debug: {
+      points: points || [],
+    },
+  };
+};
+
+const GetCurrentPose = () => {
+  if (CP == undefined) {
+    return undefined;
+  } else {
+    return CP;
+  }
 };
 
 const Load = async () => {
@@ -40,4 +74,4 @@ const Load = async () => {
   await cam.start();
 };
 
-export default { Load };
+export default { Load, GetCurrentPose };
