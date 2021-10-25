@@ -1,6 +1,6 @@
 import '@src/style.scss';
 
-import * as THREE from 'three';
+import { DirectionalLight, Clock } from 'three';
 import camera from '@library/camera';
 import scene from '@library/scene';
 import plane from '@library/plane'
@@ -34,7 +34,7 @@ const initContent = () => {
 
 const initCanvas = async () => {
   // light
-  const dirLight = new THREE.DirectionalLight(0xffffff);
+  const dirLight = new DirectionalLight(0xffffff);
   dirLight.position.set(3, 10, 10);
   dirLight.castShadow = true;
   dirLight.shadow.camera.top = 2;
@@ -51,7 +51,7 @@ const initCanvas = async () => {
 
   // model
   // samples are from here https://hub.vroid.com/en/characters/1248981995540129234/models/8640547963669442173
-  const gltf = await model.LoadGLTF("/sample-1.vrm")
+  const gltf = await model.LoadGLTF("sample-1.vrm")
   const vrmModel = await model.LoadVRM(gltf)
   scene.add(vrmModel.scene);
 
@@ -76,7 +76,7 @@ const onWindowResize = () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-const clock = new THREE.Clock();
+const clock = new Clock();
 
 const animate = (vrm: VRM) => {
   const render = (time: DOMHighResTimeStamp = 0) => {
@@ -106,4 +106,4 @@ const animate = (vrm: VRM) => {
 }
 
 initContent();
-initCanvas();
+(async () => await initCanvas())();
