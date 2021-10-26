@@ -1,4 +1,4 @@
-import { WebGLRenderer, sRGBEncoding } from "three";
+import { WebGLRenderer, sRGBEncoding } from 'three';
 
 const renderer = new WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio);
