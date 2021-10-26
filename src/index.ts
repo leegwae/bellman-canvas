@@ -1,12 +1,20 @@
 import '@src/style.scss';
-
-import * as THREE from 'three';
+import {
+  Clock,
+  Mesh,
+  DirectionalLight,
+  Line,
+  IcosahedronGeometry,
+  MeshPhongMaterial,
+  LineBasicMaterial,
+  Vector3, BufferGeometry
+} from 'three';
 import camera from '@library/camera';
 import scene from '@library/scene';
 import plane from '@library/plane';
 import renderer from '@library/renderer';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import mediapipe from '@library/mediapipe';
+import mediaPipe from '@library/mediapipe';
 
 // ============ [ 임시 상수 ] =======================
 const Panel = {
@@ -27,7 +35,7 @@ const Panel = {
   },
 };
 
-const clock = new THREE.Clock();
+const clock = new Clock();
 
 const lineList = [
   { a: 0, b: 1 },
@@ -65,9 +73,9 @@ const lineList = [
   { a: 30, b: 32 },
 ];
 
-const animate = (spheres: THREE.Mesh[], lines: THREE.Line[]) => {
+const animate = (spheres: Mesh[], lines: Line[]) => {
   const render = (time = 0) => {
-    const CurrentPose = mediapipe.GetCurrentPose();
+    const CurrentPose = mediaPipe.GetCurrentPose();
 
     // Drawing Pannels
     if (Panel.course.elem) Panel.course.elem.innerText = Panel.course.content;
@@ -139,9 +147,9 @@ const onWindowResize = () => {
 };
 
 const initCanvas = async () => {
-  await mediapipe.Load();
+  await mediaPipe.Load();
   // light
-  const dirLight = new THREE.DirectionalLight(0xffffff);
+  const dirLight = new DirectionalLight(0xffffff);
   dirLight.position.set(3, 10, 10);
   dirLight.castShadow = true;
   dirLight.shadow.camera.top = 2;
@@ -162,23 +170,23 @@ const initCanvas = async () => {
   // const vrmModel = await model.LoadVRM(gltf);
   // scene.add(vrmModel.scene);
 
-  const geometry = new THREE.IcosahedronGeometry(0.05);
-  const material = new THREE.MeshPhongMaterial({
+  const geometry = new IcosahedronGeometry(0.05);
+  const material = new MeshPhongMaterial({
     color: '#38d9a9',
   });
   const spheres = [...Array(31)].map(() => {
-    const s = new THREE.Mesh(geometry, material);
+    const s = new Mesh(geometry, material);
     scene.add(s);
     return s;
   });
 
-  const lineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });
+  const lineMaterial = new LineBasicMaterial({ color: 0x0000ff });
   const lines = lineList.map(() => {
-    const linegeometry = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(0, 0, 0),
-      new THREE.Vector3(0, 0, 0),
+    const lineGeometry = new BufferGeometry().setFromPoints([
+      new Vector3(0, 0, 0),
+      new Vector3(0, 0, 0),
     ]);
-    const line = new THREE.Line(linegeometry, lineMaterial);
+    const line = new Line(lineGeometry, lineMaterial);
     scene.add(line);
     return line;
   });
@@ -197,4 +205,4 @@ const initCanvas = async () => {
   animate(spheres, lines);
 };
 
-initCanvas();
+(async () => await initCanvas())();
