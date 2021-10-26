@@ -20,15 +20,15 @@ module.exports = {
           loader: 'file-loader',
           options: {
             name: '[name].[ext]?[hash]',
-            publicPath: './dist/'
+            publicPath: './dist/',
           },
         },
       },
       {
         test: /\.scss$/,
         use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
-        exclude: /node_modules/
-      }
+        exclude: /node_modules/,
+      },
     ],
   },
   resolve: {
@@ -37,9 +37,9 @@ module.exports = {
     plugins: [
       new TsConfigPathsPlugin(
         {
-          configFile: path.resolve(__dirname, './tsconfig.json')
-        }
-      )
+          configFile: path.resolve(__dirname, './tsconfig.json'),
+        },
+      ),
     ],
   },
   devtool: 'inline-source-map',
@@ -51,7 +51,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './src/index.html',
     }),
-    new MiniCssExtractPlugin()
+    new MiniCssExtractPlugin(),
   ],
   output: {
     filename: '[name].js',

@@ -16,8 +16,14 @@
     "@babel/preset-env": "^7.15.8",
     "@babel/preset-typescript": "^7.15.0",
     "@types/three": "^0.133.1",
+    "@typescript-eslint/eslint-plugin": "^5.2.0",
+    "@typescript-eslint/parser": "^5.2.0",
     "babel-loader": "^8.2.2",
     "css-loader": "^6.4.0",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-import-resolver-typescript": "^2.5.0",
+    "eslint-plugin-import": "^2.25.2",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.3.2",
     "mini-css-extract-plugin": "^2.4.3",
@@ -32,6 +38,8 @@
     "webpack-dev-server": "^4.3.1"
   },
   "dependencies": {
+    "@mediapipe/camera_utils": "^0.3.1632432234",
+    "@mediapipe/pose": "^0.4.1633558788",
     "@pixiv/three-vrm": "^0.6.7",
     "@types/dat.gui": "^0.7.7",
     "three": "^0.133.1"
