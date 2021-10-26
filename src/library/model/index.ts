@@ -26,12 +26,11 @@ const LoadBones = (model: GLTF): { [name: string]: Bone } => {
 };
 
 const LoadVRM = (model: GLTF): Promise<VRM> => new Promise((resolve, reject) => {
-  VRM.from(model).then((vrm) => {
-    resolve(vrm);
-  }).catch((error) => {
-    console.error(error);
-    reject(error);
-  });
+  VRM.from(model).then(resolve)
+    .catch((error) => {
+      console.error(error);
+      reject(error);
+    });
 });
 
 export default { LoadGLTF, LoadBones, LoadVRM };

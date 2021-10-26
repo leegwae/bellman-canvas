@@ -38,6 +38,8 @@
     "webpack-dev-server": "^4.3.1"
   },
   "dependencies": {
+    "@mediapipe/camera_utils": "^0.3.1632432234",
+    "@mediapipe/pose": "^0.4.1633558788",
     "@pixiv/three-vrm": "^0.6.7",
     "@types/dat.gui": "^0.7.7",
     "three": "^0.133.1"

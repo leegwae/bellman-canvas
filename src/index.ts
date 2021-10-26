@@ -9,6 +9,26 @@ import model from '@library/model';
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { VRM, VRMSchema } from '@pixiv/three-vrm';
+import mediapipe from '@library/mediapipe';
+
+// ============ [ 임시 상수 ] =======================
+const Panel = {
+  course: {
+    elem: document.getElementById('course'),
+    content: '스쿼트',
+  },
+  message: {
+    elem: document.getElementById('message'),
+    content: '손을 펴고 다리를 굽히고',
+  },
+  goal: {
+    elem: document.getElementById('count'),
+    content: 3,
+  },
+  debug: {
+    elem: document.getElementById('debugging') as HTMLCanvasElement,
+  },
+};
 
 const onWindowResize = () => {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -21,6 +41,29 @@ const clock = new THREE.Clock();
 
 const animate = (vrm: VRM) => {
   const render = (time = 0) => {
+    const CurrentPose = mediapipe.GetCurrentPose();
+
+    // Drawing Pannels
+    if (Panel.course.elem) Panel.course.elem.innerText = Panel.course.content;
+    // if (Panel.goal.elem) [...Array(3)].map(() => createCircle(Panel.goal.elem));
+    if (Panel.message.elem) { Panel.message.elem.innerText = Panel.message.content; }
+
+    // drawing debugging info
+    if (Panel.debug.elem) {
+      if (CurrentPose) {
+        const canvas = Panel.debug.elem;
+        const ctx = canvas.getContext('2d');
+        ctx?.clearRect(0, 0, 320, 240);
+        if (CurrentPose.hasPoseData) {
+          CurrentPose.debug.points.forEach((p, i) => {
+            ctx?.fillText(`${i}`, p.x, p.y);
+          });
+        } else {
+          ctx?.drawImage(CurrentPose.raw.image, 0, 0, 320, 240);
+        }
+      }
+    }
+
     // model animation
     const s = 0.25 * Math.PI * Math.sin(Math.PI * clock.elapsedTime);
     const deltaTime = clock.getDelta();
@@ -51,29 +94,8 @@ const animate = (vrm: VRM) => {
   render();
 };
 
-// ============ [ 임시 상수 ] =======================
-const COURSE = '스쿼트';
-const MESSAGE = '손을 펴고 다리를 굽히고';
-const GOAL = 3;
-
-const createCircle = (parent: HTMLElement) => {
-  const circle = document.createElement('div');
-  circle.className = 'circle';
-  parent.appendChild(circle);
-};
-
-const initContent = () => {
-  const course = document.getElementById('course');
-  if (course) course.innerText = COURSE;
-
-  const message = document.getElementById('message');
-  if (message) message.innerText = MESSAGE;
-
-  const count = document.getElementById('count');
-  if (count) [...Array(GOAL)].map(() => createCircle(count));
-};
-
 const initCanvas = async () => {
+  await mediapipe.Load();
   // light
   const dirLight = new THREE.DirectionalLight(0xffffff);
   dirLight.position.set(3, 10, 10);
@@ -110,5 +132,4 @@ const initCanvas = async () => {
   animate(vrmModel);
 };
 
-initContent();
 initCanvas();
