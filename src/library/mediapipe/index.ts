@@ -1,30 +1,26 @@
-import camera_utils from "@mediapipe/camera_utils";
-import Pose from "@mediapipe/pose";
+import cameraUtils from '@mediapipe/camera_utils';
+import Pose from '@mediapipe/pose';
 
 type CurrentPose = {
   raw: Pose.Results;
   image: Pose.GpuBuffer;
   hasPoseData: boolean;
-  HumanoidBoneAngle: { [key: string]: THREE.Euler };
   debug: {
     points: { x: number; y: number }[];
   };
 };
 
-let CP: CurrentPose | undefined;
+let CP: CurrentPose;
 
 const OnPoseResult = async (result: Pose.Results) => {
-  const points = result.poseLandmarks?.map((p) => {
-    return {
-      x: p.x * 320,
-      y: p.y * 240,
-    };
-  });
+  const points = result.poseLandmarks?.map((p) => ({
+    x: p.x * 320,
+    y: p.y * 240,
+  }));
   CP = {
     raw: result,
     image: result.image,
-    hasPoseData: points ? true : false,
-    HumanoidBoneAngle: {},
+    hasPoseData: result.poseWorldLandmarks !== undefined,
     debug: {
       points: points || [],
     },
@@ -32,22 +28,19 @@ const OnPoseResult = async (result: Pose.Results) => {
 };
 
 const GetCurrentPose = () => {
-  if (CP == undefined) {
+  if (CP === undefined) {
     return undefined;
-  } else {
-    return CP;
   }
+  return CP;
 };
 
 const Load = async () => {
   // init cam element
-  const camElem = document.createElement("video");
+  const camElem = document.createElement('video');
 
   // init pose
   const pose = new Pose.Pose({
-    locateFile: (file: string) => {
-      return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@${Pose.VERSION}/${file}`;
-    },
+    locateFile: (file: string) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose@${Pose.VERSION}/${file}`,
   });
 
   pose.setOptions({
@@ -62,12 +55,11 @@ const Load = async () => {
 
   pose.onResults(OnPoseResult);
 
-  const cam = new camera_utils.Camera(camElem, {
+  const cam = new cameraUtils.Camera(camElem, {
     onFrame: async () => {
       await pose.send({
         image: camElem,
       });
-      return;
     },
   });
 
