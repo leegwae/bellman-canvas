@@ -2,6 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   mode: 'development',
@@ -52,6 +53,15 @@ module.exports = {
       template: './src/index.html',
     }),
     new MiniCssExtractPlugin(),
+    // public 폴더의 asset 들을 dist 산출물 폴더에 포함시키는 플러그인.
+    new CopyPlugin({
+      patterns: [
+        {
+          from: path.resolve(__dirname, './public/'),
+          to: path.resolve(__dirname, './dist/')
+        }
+      ]
+    })
   ],
   output: {
     filename: '[name].js',
