@@ -7,7 +7,8 @@ import {
   IcosahedronGeometry,
   MeshPhongMaterial,
   LineBasicMaterial,
-  Vector3, BufferGeometry
+  Vector3,
+  BufferGeometry,
 } from 'three';
 import camera from '@library/camera';
 import scene from '@library/scene';
@@ -15,25 +16,40 @@ import plane from '@library/plane';
 import renderer from '@library/renderer';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import mediaPipe from '@library/mediapipe';
+import Manager from './types';
 
-// ============ [ 임시 상수 ] =======================
-const Panel = {
-  course: {
-    elem: document.getElementById('course'),
-    content: '스쿼트',
-  },
-  message: {
-    elem: document.getElementById('message'),
-    content: '손을 펴고 다리를 굽히고',
-  },
-  goal: {
-    elem: document.getElementById('count'),
-    content: 3,
-  },
-  debug: {
-    elem: document.getElementById('debugging') as HTMLCanvasElement,
-  },
-};
+const manager = new Manager();
+
+// 사용 예시 (1) set*: *를 설정한다. (2) update*: *를 디스플레이한다.
+manager.setCourse('스쿼트');
+manager.updateCourse();
+manager.setMessage('손 펴고 팔 앞으로');
+manager.updateMessage();
+manager.setGoal(3);
+manager.updateGoal();
+
+// 동작 한 번 성공시
+manager.incrementCount();
+manager.updateCount();
+
+// // ============ [ 임시 상수 ] =======================
+// const Panel = {
+//   course: {
+//     elem: document.getElementById('course'),
+//     content: '스쿼트',
+//   },
+//   message: {
+//     elem: document.getElementById('message'),
+//     content: '손을 펴고 다리를 굽히고',
+//   },
+//   goal: {
+//     elem: document.getElementById('count'),
+//     content: 3,
+//   },
+//   debug: {
+//     elem: document.getElementById('debugging') as HTMLCanvasElement,
+//   },
+// };
 
 const clock = new Clock();
 
@@ -76,16 +92,18 @@ const lineList = [
 const animate = (spheres: Mesh[], lines: Line[]) => {
   const render = (time = 0) => {
     const CurrentPose = mediaPipe.GetCurrentPose();
+    const canvas = manager.getDebugPanel();
 
     // Drawing Pannels
-    if (Panel.course.elem) Panel.course.elem.innerText = Panel.course.content;
-    // if (Panel.goal.elem) [...Array(3)].map(() => createCircle(Panel.goal.elem));
-    if (Panel.message.elem) { Panel.message.elem.innerText = Panel.message.content; }
+    manager.updateCourse();
+    manager.updateMessage();
+    // if (Panel.course.elem) Panel.course.elem.innerText = Panel.course.content;
+    // // if (Panel.goal.elem) [...Array(3)].map(() => createCircle(Panel.goal.elem));
+    // if (Panel.message.elem) { Panel.message.elem.innerText = Panel.message.content; }
 
     // drawing debugging info
-    if (Panel.debug.elem) {
+    if (canvas) {
       if (CurrentPose) {
-        const canvas = Panel.debug.elem;
         const ctx = canvas.getContext('2d');
         ctx?.clearRect(0, 0, 320, 240);
         if (CurrentPose.hasPoseData) {
@@ -100,7 +118,7 @@ const animate = (spheres: Mesh[], lines: Line[]) => {
 
     // model animation
     if (CurrentPose) {
-      CurrentPose.raw.poseWorldLandmarks?.forEach((ptr, i) => {
+      CurrentPose.raw.poseWorldLandmarks?.forEach((ptr: any, i: any) => {
         if (spheres[i]) {
           const x = ptr.x * 1.5;
           const y = (1 - ptr.y) * 1.5;

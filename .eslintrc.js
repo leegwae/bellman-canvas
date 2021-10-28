@@ -22,6 +22,20 @@ module.exports = {
     'import',
   ],
   rules: {
+    'linebreak-style': 0,
+    'max-classes-per-file': 'off',
     'no-console': 'off',
+    'no-unused-vars': 'off',
+    'no-plusplus': 'off',
+    'lines-between-class-members': 'off',
+    'no-return-await': 'off',
+    'import/extensions': [
+      'error',
+      'ignorePackages',
+      {
+        js: 'never',
+        ts: 'never',
+      },
+    ],
   },
 };
