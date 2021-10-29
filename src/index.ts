@@ -15,7 +15,8 @@ import scene from '@library/scene';
 import plane from '@library/plane';
 import renderer from '@library/renderer';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import mediaPipe from '@library/mediapipe';
+import mediapipe, { TARGET_POSE_SQUAT_0, TARGET_POSE_SQUAT_1 } from '@library/mediapipe';
+import { POSE_CONNECTIONS } from '@mediapipe/pose';
 import Manager from './types';
 
 const manager = new Manager();
@@ -23,102 +24,28 @@ const manager = new Manager();
 // 사용 예시 (1) set*: *를 설정한다. (2) update*: *를 디스플레이한다.
 manager.setCourse('스쿼트');
 manager.updateCourse();
-manager.setMessage('손 펴고 팔 앞으로');
+manager.setMessage('팔짱끼고 서있어');
 manager.updateMessage();
-manager.setGoal(3);
+manager.setGoal(20);
 manager.updateGoal();
 
 // 동작 한 번 성공시
 manager.incrementCount();
 manager.updateCount();
 
-// // ============ [ 임시 상수 ] =======================
-// const Panel = {
-//   course: {
-//     elem: document.getElementById('course'),
-//     content: '스쿼트',
-//   },
-//   message: {
-//     elem: document.getElementById('message'),
-//     content: '손을 펴고 다리를 굽히고',
-//   },
-//   goal: {
-//     elem: document.getElementById('count'),
-//     content: 3,
-//   },
-//   debug: {
-//     elem: document.getElementById('debugging') as HTMLCanvasElement,
-//   },
-// };
-
 const clock = new Clock();
 
-const lineList = [
-  { a: 0, b: 1 },
-  { a: 0, b: 4 },
-  { a: 1, b: 2 },
-  { a: 2, b: 3 },
-  { a: 3, b: 7 },
-  { a: 4, b: 5 },
-  { a: 5, b: 6 },
-  { a: 6, b: 8 },
-  { a: 9, b: 10 },
-  { a: 11, b: 12 },
-  { a: 11, b: 13 },
-  { a: 11, b: 23 },
-  { a: 12, b: 14 },
-  { a: 12, b: 24 },
-  { a: 13, b: 15 },
-  { a: 14, b: 16 },
-  { a: 15, b: 17 },
-  { a: 15, b: 19 },
-  { a: 15, b: 21 },
-  { a: 16, b: 18 },
-  { a: 16, b: 20 },
-  { a: 16, b: 22 },
-  { a: 23, b: 24 },
-  { a: 23, b: 25 },
-  { a: 24, b: 26 },
-  { a: 25, b: 27 },
-  { a: 26, b: 28 },
-  { a: 27, b: 29 },
-  { a: 27, b: 31 },
-  { a: 28, b: 30 },
-  { a: 28, b: 32 },
-  { a: 29, b: 31 },
-  { a: 30, b: 32 },
-];
-
-const animate = (spheres: Mesh[], lines: Line[]) => {
+const animate = (cameraControl: OrbitControls, spheres: Mesh[], lines: Line[]) => {
   const render = (time = 0) => {
-    const CurrentPose = mediaPipe.GetCurrentPose();
-    const canvas = manager.getDebugPanel();
+    const CurrentPose = mediapipe.GetCurrentPose();
 
     // Drawing Pannels
     manager.updateCourse();
     manager.updateMessage();
-    // if (Panel.course.elem) Panel.course.elem.innerText = Panel.course.content;
-    // // if (Panel.goal.elem) [...Array(3)].map(() => createCircle(Panel.goal.elem));
-    // if (Panel.message.elem) { Panel.message.elem.innerText = Panel.message.content; }
-
-    // drawing debugging info
-    if (canvas) {
-      if (CurrentPose) {
-        const ctx = canvas.getContext('2d');
-        ctx?.clearRect(0, 0, 320, 240);
-        if (CurrentPose.hasPoseData) {
-          CurrentPose.debug.points.forEach((p, i) => {
-            ctx?.fillText(`${i}`, p.x, p.y);
-          });
-        } else {
-          ctx?.drawImage(CurrentPose.raw.image, 0, 0, 320, 240);
-        }
-      }
-    }
 
     // model animation
-    if (CurrentPose) {
-      CurrentPose.raw.poseWorldLandmarks?.forEach((ptr: any, i: any) => {
+    if (CurrentPose.raw !== undefined) {
+      CurrentPose.raw.poseLandmarks?.forEach((ptr: any, i: any) => {
         if (spheres[i]) {
           const x = ptr.x * 1.5;
           const y = (1 - ptr.y) * 1.5;
@@ -126,8 +53,8 @@ const animate = (spheres: Mesh[], lines: Line[]) => {
           spheres[i].position.set(x, y, z);
         }
       });
-      lineList.forEach((val, i) => {
-        const { a, b } = val;
+      POSE_CONNECTIONS.forEach((val, i) => {
+        const [a, b] = val;
         if (lines[i] && spheres[a] && spheres[b]) {
           lines[i].geometry.attributes.position.setXYZ(
             0,
@@ -146,6 +73,11 @@ const animate = (spheres: Mesh[], lines: Line[]) => {
         }
       });
     }
+    // camera
+    // TODO (@이완해): 이게 정식방법은 아닌거 같은데, 일단 작동은 하니깐 좀 방치해두고 나중에 (중간발표 이후에) 개선해두겠습니다.
+    cameraControl.target = spheres[0].position;
+    cameraControl.update();
+
     const deltaTime = clock.getDelta();
     // render time
     if (deltaTime >= 0.033) {
@@ -165,7 +97,7 @@ const onWindowResize = () => {
 };
 
 const initCanvas = async () => {
-  await mediaPipe.Load();
+  await mediapipe.Load(manager.getDebugPanel());
   // light
   const dirLight = new DirectionalLight(0xffffff);
   dirLight.position.set(3, 10, 10);
@@ -183,11 +115,6 @@ const initCanvas = async () => {
   scene.add(plane);
 
   // model
-  // samples are from here https://hub.vroid.com/en/characters/1248981995540129234/models/8640547963669442173
-  // const gltf = await model.LoadGLTF("/sample-1.vrm");
-  // const vrmModel = await model.LoadVRM(gltf);
-  // scene.add(vrmModel.scene);
-
   const geometry = new IcosahedronGeometry(0.05);
   const material = new MeshPhongMaterial({
     color: '#38d9a9',
@@ -199,7 +126,7 @@ const initCanvas = async () => {
   });
 
   const lineMaterial = new LineBasicMaterial({ color: 0x0000ff });
-  const lines = lineList.map(() => {
+  const lines = POSE_CONNECTIONS.map(() => {
     const lineGeometry = new BufferGeometry().setFromPoints([
       new Vector3(0, 0, 0),
       new Vector3(0, 0, 0),
@@ -215,12 +142,11 @@ const initCanvas = async () => {
   controls.enablePan = true;
   controls.enableZoom = true;
   controls.target.set(0, 1.8, 0);
-  controls.update();
 
   document.body.appendChild(renderer.domElement);
 
   window.addEventListener('resize', onWindowResize);
-  animate(spheres, lines);
+  animate(controls, spheres, lines);
 };
 
 (async () => await initCanvas())();
