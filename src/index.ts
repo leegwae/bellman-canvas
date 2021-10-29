@@ -33,6 +33,34 @@ manager.updateGoal();
 manager.incrementCount();
 manager.updateCount();
 
+let tgtEvent = TARGET_POSE_SQUAT_0;
+const listen = () => {
+  if (tgtEvent === TARGET_POSE_SQUAT_0) {
+    mediapipe.setOnTargetPose(TARGET_POSE_SQUAT_0, (tgt, diff) => {
+      tgtEvent = TARGET_POSE_SQUAT_1;
+      manager.setMessage('쭈구려');
+      manager.updateMessage();
+      mediapipe.resetOnTargetPose();
+      setTimeout(() => {
+        listen();
+      }, 1000);
+    });
+  } else if (tgtEvent === TARGET_POSE_SQUAT_1) {
+    mediapipe.setOnTargetPose(TARGET_POSE_SQUAT_1, (tgt, diff) => {
+      tgtEvent = TARGET_POSE_SQUAT_0;
+      manager.incrementCount();
+      manager.updateCount();
+      manager.setMessage('일어나');
+      manager.updateMessage();
+      mediapipe.resetOnTargetPose();
+      setTimeout(() => {
+        listen();
+      }, 1000);
+    });
+  }
+};
+listen();
+
 const clock = new Clock();
 
 const animate = (cameraControl: OrbitControls, spheres: Mesh[], lines: Line[]) => {
