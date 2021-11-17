@@ -27,6 +27,7 @@ module.exports = {
     'no-console': 'off',
     'no-unused-vars': 'off',
     'no-plusplus': 'off',
+    'no-param-reassign': 'off',
     'lines-between-class-members': 'off',
     'no-return-await': 'off',
     'import/extensions': [
