@@ -17,21 +17,32 @@ import renderer from '@library/renderer';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import mediapipe, { TARGET_POSE_SQUAT_0, TARGET_POSE_SQUAT_1 } from '@library/mediapipe';
 import { POSE_CONNECTIONS } from '@mediapipe/pose';
+import {
+  setTempSettings, Course, getCourseSettings, saveResults, removeResults,
+} from '@library/storage';
 import Manager from './types';
 
 const manager = new Manager();
 
-// 사용 예시 (1) set*: *를 설정한다. (2) update*: *를 디스플레이한다.
-manager.setCourse('스쿼트');
-manager.updateCourse();
-manager.setMessage('팔짱끼고 서있어');
-manager.updateMessage();
-manager.setGoal(20);
-manager.updateGoal();
+const initContent = () => {
+  removeResults();
+  setTempSettings();
+  const settings: Course[] | null = getCourseSettings();
 
-// 동작 한 번 성공시
-manager.incrementCount();
-manager.updateCount();
+  if (settings === null) return;
+
+  // 현재는 스쿼트만 설정한 것으로 가정한다.
+  const { exerciseName, repeat } = settings[0];
+  manager.setCourse(exerciseName);
+  manager.setGoal(repeat);
+  manager.setMessage('쭈구려');
+
+  manager.updateCourse();
+  manager.updateGoal();
+  manager.updateMessage();
+};
+
+initContent();
 
 let tgtEvent = TARGET_POSE_SQUAT_0;
 const listen = () => {
@@ -53,9 +64,20 @@ const listen = () => {
       manager.setMessage('일어나');
       manager.updateMessage();
       mediapipe.resetOnTargetPose();
-      setTimeout(() => {
-        listen();
-      }, 1000);
+
+      saveResults(manager.getCurrentCourse(), new Date().toLocaleString());
+      if (manager.isSuccess()) {
+        manager.setMessage('잘했어요!');
+        manager.updateMessage();
+
+        setTimeout(() => {
+          window.close();
+        }, 1000);
+      } else {
+        setTimeout(() => {
+          listen();
+        }, 1000);
+      }
     });
   }
 };
