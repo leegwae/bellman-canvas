@@ -1,5 +1,3 @@
-import { saveResult } from '@src/library/store';
-
 export class Elem {
   private elem: HTMLElement | null;
 
@@ -39,15 +37,10 @@ class Manager {
     this.currentCount = 0;
   }
 
-  private createCircle = () => {
-    const circle = document.createElement('div');
-    circle.className = 'circle';
-    return circle;
-  };
+  // 현재 반복 횟수와 목표 횟수가 같으면 true를 반환
+  public isSuccess() { return this.currentCount === this.goal.getContent(); }
 
-  private isSuccess = () => this.currentCount === this.goal.getContent();
-
-  // ===================== [ local storage로 받아온 값 관리 ] =======================
+  // 현재 상태를 설정
   setCourse(content: string) {
     this.course.setContent(content);
   }
@@ -60,8 +53,13 @@ class Manager {
     this.goal.setContent(content);
   }
 
+  // 현재 상태를 반환
+  getCurrentCourse() { return this.course.getContent(); }
+
+  // 디버그 패널 캔버스 객체 반환
   getDebugPanel() { return this.debug.getElem() as HTMLCanvasElement; }
 
+  // 현재 상태를 화면에 디스플레이
   updateCourse() {
     const elem = this.course.getElem();
     if (elem) elem.innerText = this.course.getContent();
@@ -73,6 +71,12 @@ class Manager {
   }
 
   updateGoal() {
+    const createCircle = (): HTMLDivElement => {
+      const circle = document.createElement('div');
+      circle.className = 'circle';
+      return circle;
+    };
+
     const elem = this.goal.getElem();
     if (elem) {
       for (let idx = 0; idx < elem.children.length; idx++) {
@@ -80,7 +84,7 @@ class Manager {
       }
 
       [...Array(this.goal.getContent())].forEach(() => {
-        elem.appendChild(this.createCircle());
+        elem.appendChild(createCircle());
       });
     }
   }
@@ -88,12 +92,7 @@ class Manager {
   // ================= [ 현재 운동 횟수 관리 ] ====================================
   getCurrentCount() { return this.currentCount; }
 
-  incrementCount() {
-    this.currentCount += 1;
-
-    // 목표와 현재 운동 성공 횟수가 같아지면 save
-    if (this.isSuccess()) saveResult(this.course.getContent(), new Date(), this.isSuccess());
-  }
+  incrementCount() { this.currentCount += 1; }
 
   updateCount() {
     const elem = this.goal.getElem();
