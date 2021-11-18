@@ -26,7 +26,7 @@ const manager = new Manager();
 
 const initContent = () => {
   removeResults();
-  setTempSettings();
+  // setTempSettings();
   const settings: Course[] | null = getCourseSettings();
 
   if (settings === null) return;
