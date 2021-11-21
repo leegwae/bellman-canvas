@@ -65,7 +65,7 @@ const listen = () => {
       manager.updateMessage();
       mediapipe.resetOnTargetPose();
 
-      saveResults(manager.getCurrentCourse(), new Date().toLocaleString());
+      saveResults(manager.getCurrentCourse(), new Date().getTime());
       if (manager.isSuccess()) {
         manager.setMessage('잘했어요!');
         manager.updateMessage();
