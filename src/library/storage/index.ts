@@ -1,4 +1,4 @@
-export interface Result { exerciseName: string; time: string; }
+export interface Result { exerciseName: string; time: string | number | Date; }
 export interface Course { id: string; exercise: string; exerciseName: string; repeat: number; }
 interface Settings { courses: Course[]; interval: number; playSound: boolean; }
 
@@ -28,7 +28,7 @@ const getPreviousResults = (): Result[] | null => {
   return parsed;
 };
 
-export const saveResults = (exerciseName: string, time: string) => {
+export const saveResults = (exerciseName: string, time: string | number) => {
   const cur: Result = { exerciseName, time };
   const prev: Result[] | null = getPreviousResults();
   const formatted = JSON.stringify(prev ? [...prev, cur] : [cur]);
