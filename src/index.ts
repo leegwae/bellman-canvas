@@ -65,14 +65,14 @@ const listen = () => {
       manager.updateMessage();
       mediapipe.resetOnTargetPose();
 
-      saveResults(manager.getCurrentCourse(), new Date().getTime());
       if (manager.isSuccess()) {
+        saveResults('squat', Date.now(), true);
         manager.setMessage('잘했어요!');
         manager.updateMessage();
 
         setTimeout(() => {
           window.close();
-        }, 1000);
+        }, 4000);
       } else {
         setTimeout(() => {
           listen();
