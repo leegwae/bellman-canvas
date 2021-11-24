@@ -35,6 +35,6 @@ export const saveResults = (exercise: string, date: number, hadSucceeded: boolea
   localStorage.setItem(KEY_RESULTS, formatted);
 };
 
-export const removeResults = () => {
+export const clearResults = () => {
   localStorage.removeItem(KEY_RESULTS);
 };
