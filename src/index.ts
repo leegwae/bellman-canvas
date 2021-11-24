@@ -18,28 +18,35 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import mediapipe, { TARGET_POSE_SQUAT_0, TARGET_POSE_SQUAT_1 } from '@library/mediapipe';
 import { POSE_CONNECTIONS } from '@mediapipe/pose';
 import {
-  setTempSettings, Course, getCourseSettings, saveResults, removeResults,
+  setTempSettings, Course, getCourseSettings, saveResults, clearResults,
 } from '@library/storage';
-import Manager from './types';
+import ElemManager from '@src/types/ElemManager';
+import ExcerciseManager from '@src/types/ExerciseManager';
 
-const manager = new Manager();
+const UI = new ElemManager();
+const manager = new ExcerciseManager();
+
+let settings: Course[] | null = null;
+let currentIdx = -1;
 
 const initContent = () => {
-  removeResults();
-  // setTempSettings();
-  const settings: Course[] | null = getCourseSettings();
+  setTempSettings();
+  settings = getCourseSettings();
 
   if (settings === null) return;
 
-  // 현재는 스쿼트만 설정한 것으로 가정한다.
-  const { exerciseName, repeat } = settings[0];
-  manager.setCourse(exerciseName);
-  manager.setGoal(repeat);
-  manager.setMessage('쭈구려');
+  currentIdx = 0;
+  const { exercise, repeat } = settings[currentIdx];
 
-  manager.updateCourse();
-  manager.updateGoal();
-  manager.updateMessage();
+  manager.setGoal(repeat);
+  manager.setExerciseName(exercise);
+  manager.setMessage('쭈구려');
+  manager.setCountToZero();
+
+  UI.updateGoal(manager.getGoal());
+  UI.updateCount(manager.getCount());
+  UI.updateExerciseName(manager.getExerciseName());
+  UI.updateMessage(manager.getMessage());
 };
 
 initContent();
@@ -50,7 +57,7 @@ const listen = () => {
     mediapipe.setOnTargetPose(TARGET_POSE_SQUAT_0, (tgt, diff) => {
       tgtEvent = TARGET_POSE_SQUAT_1;
       manager.setMessage('쭈구려');
-      manager.updateMessage();
+      UI.updateMessage(manager.getMessage());
       mediapipe.resetOnTargetPose();
       setTimeout(() => {
         listen();
@@ -60,15 +67,15 @@ const listen = () => {
     mediapipe.setOnTargetPose(TARGET_POSE_SQUAT_1, (tgt, diff) => {
       tgtEvent = TARGET_POSE_SQUAT_0;
       manager.incrementCount();
-      manager.updateCount();
+      UI.updateCount(manager.getCount());
       manager.setMessage('일어나');
-      manager.updateMessage();
+      UI.updateMessage(manager.getMessage());
       mediapipe.resetOnTargetPose();
 
       if (manager.isSuccess()) {
         saveResults('squat', Date.now(), true);
         manager.setMessage('잘했어요!');
-        manager.updateMessage();
+        UI.updateMessage(manager.getMessage());
 
         setTimeout(() => {
           window.close();
@@ -88,10 +95,6 @@ const clock = new Clock();
 const animate = (cameraControl: OrbitControls, spheres: Mesh[], lines: Line[]) => {
   const render = (time = 0) => {
     const CurrentPose = mediapipe.GetCurrentPose();
-
-    // Drawing Pannels
-    manager.updateCourse();
-    manager.updateMessage();
 
     // model animation
     if (CurrentPose.raw !== undefined) {
@@ -147,7 +150,7 @@ const onWindowResize = () => {
 };
 
 const initCanvas = async () => {
-  await mediapipe.Load(manager.getDebugPanel());
+  await mediapipe.Load(UI.getDebugPanel());
   // light
   const dirLight = new DirectionalLight(0xffffff);
   dirLight.position.set(3, 10, 10);
