@@ -1,3 +1,7 @@
+import { TARGET_POSE_SQUAT, MESSAGE_SQUAT } from '@library/mediapipe/squat';
+import { TARGET_POSE_SIDE, MESSAGE_SIDE } from '@library/mediapipe/side';
+import { TARGET_POSE_BREATHING, MESSAGE_BREATHING } from '@library/mediapipe//breathing';
+
 // pose landmarks https://google.github.io/mediapipe/images/mobile/pose_tracking_full_body_landmarks.png
 // pose signiture https://google.github.io/mediapipe/images/mobile/pose_classification_pairwise_distances.png
 export const POSE_SIGNITURE_POINTS = [
@@ -29,41 +33,29 @@ export interface PoseDifference {
   value: number;
 }
 
-// 스쿼트에서 서있는 자세 (팔짱끼고 있음)
-export const TARGET_POSE_SQUAT_0 : TargetPose = {
-  code: 'TARGET_POSE_SQUAT_0',
-  similarityGoal: 0.03,
-  signature: [
-    // { id: 0, value: 0.3725 },
-    { id: 1, value: 0.2065 },
-    { id: 2, value: 0.6812 },
-    { id: 3, value: 0.2060 },
-    { id: 4, value: 0.0555 },
-    { id: 5, value: 0.4562 },
-    // { id: 6, value: 0.7880 },
-    { id: 7, value: 0.1695 },
-    { id: 8, value: 0.3935 },
-    { id: 9, value: 0.2037 },
-    { id: 10, value: 0.2410 },
-    { id: 11, value: 0.2062 },
-  ],
+interface ExerciseDictionary {
+  [exercise: string]: string;
+}
+export const EXERCISE_DICT: ExerciseDictionary = {
+  squat: '스쿼트',
+  side: '옆구리 운동',
+  breathing: '숨쉬기 운동',
 };
-// 스쿼트에서 앉은 자세
-export const TARGET_POSE_SQUAT_1 : TargetPose = {
-  code: 'TARGET_POSE_SQUAT_1',
-  similarityGoal: 0.05,
-  signature: [
-    // { id: 0, value: 0.3284 }, // disabled due to high noise
-    { id: 1, value: 0.211 },
-    { id: 2, value: 0.4562 },
-    { id: 3, value: 0.1932 },
-    { id: 4, value: 0.0334 },
-    // { id: 5, value: 0.6064 }, // disabled due to high noise
-    { id: 6, value: 0.6204 },
-    { id: 7, value: 0.0806 },
-    { id: 8, value: 0.2676 },
-    { id: 9, value: 0.3434 },
-    { id: 10, value: 0.248 },
-    { id: 11, value: 0.1972 },
-  ],
+
+interface ExercisePose {
+  [exercise: string]: TargetPose[];
+}
+export const EXERCISE_POSE: ExercisePose = {
+  squat: TARGET_POSE_SQUAT,
+  side: TARGET_POSE_SIDE,
+  breathing: TARGET_POSE_BREATHING,
+};
+
+interface ExerciseMessage {
+  [exercise: string]: string[];
+}
+export const EXERCISE_MESSAGE: ExerciseMessage = {
+  squat: MESSAGE_SQUAT,
+  side: MESSAGE_SIDE,
+  breathing: MESSAGE_BREATHING,
 };
