@@ -15,7 +15,7 @@ import scene from '@library/scene';
 import plane from '@library/plane';
 import renderer from '@library/renderer';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import mediapipe, { TARGET_POSE_SQUAT_0, TARGET_POSE_SQUAT_1 } from '@library/mediapipe';
+import mediapipe, { TargetPose, EXERCISE_POSE, EXERCISE_MESSAGE } from '@library/mediapipe';
 import { POSE_CONNECTIONS } from '@mediapipe/pose';
 import {
   setTempSettings, Course, getCourseSettings, saveResults, clearResults,
@@ -26,67 +26,79 @@ import ExcerciseManager from '@src/types/ExerciseManager';
 const UI = new ElemManager();
 const manager = new ExcerciseManager();
 
-let settings: Course[] | null = null;
-let currentIdx = -1;
+setTempSettings();
+
+const courses: Course[] | null = getCourseSettings();
+const curCourseIdx = 0;
+let curPoseIdx = 0;
+let messages: string[];
+let targetEvents: TargetPose[];
+let targetEvent: TargetPose;
 
 const initContent = () => {
-  setTempSettings();
-  settings = getCourseSettings();
+  if (courses === null) return;
 
-  if (settings === null) return;
+  // 현재 수행해야할 운동 이름과 반복 횟수를 가져온다.
+  const { exercise, exerciseName, repeat } = courses[curCourseIdx];
+  // 현재 수행해야할 운동을 설명하는 메시지 리스트를 가져온다.
+  messages = EXERCISE_MESSAGE[exercise];
+  // 현재 수행해야할 운동을 구성하는 동작 리스트를 가져온다.
+  targetEvents = EXERCISE_POSE[exercise];
+  // 현재 동작을 가리키는 인덱스를 0으로 초기화한다.
+  curPoseIdx = 0;
+  targetEvent = targetEvents[curPoseIdx];
 
-  currentIdx = 0;
-  const { exercise, repeat } = settings[currentIdx];
-
-  manager.setGoal(repeat);
+  // state 초기화
   manager.setExerciseName(exercise);
-  manager.setMessage('쭈구려');
+  manager.setMessage(messages[0]);
+  manager.setGoal(repeat);
   manager.setCountToZero();
 
+  // state로 UI 업데이트
+  UI.updateExerciseName(exerciseName);
+  UI.updateMessage(manager.getMessage());
   UI.updateGoal(manager.getGoal());
   UI.updateCount(manager.getCount());
-  UI.updateExerciseName(manager.getExerciseName());
-  UI.updateMessage(manager.getMessage());
 };
 
 initContent();
 
-let tgtEvent = TARGET_POSE_SQUAT_0;
 const listen = () => {
-  if (tgtEvent === TARGET_POSE_SQUAT_0) {
-    mediapipe.setOnTargetPose(TARGET_POSE_SQUAT_0, (tgt, diff) => {
-      tgtEvent = TARGET_POSE_SQUAT_1;
-      manager.setMessage('쭈구려');
+  mediapipe.setOnTargetPose(targetEvent, (tgt, diff) => {
+    // 현재 취하고 있는 동작이 운동의 마지막 동작이라면 카운트를 올린다.
+    if (curPoseIdx + 1 === targetEvents.length) {
+      manager.incrementCount();
+      UI.updateCount(manager.getCount());
+    }
+
+    // 타겟이벤트를 다음에 수행해야할 동작으로 업데이트하기
+    curPoseIdx = (curPoseIdx + 1) % targetEvents.length;
+    targetEvent = targetEvents[curPoseIdx];
+
+    // 메시지 UI를 다음에 수행해야할 동작을 설명하는 메시지로 업데이트하기
+    manager.setMessage(messages[curPoseIdx]);
+    UI.updateMessage(manager.getMessage());
+
+    mediapipe.resetOnTargetPose();
+
+    // 현재 수행 중인 운동의 반복 횟수를 모두 수행했으면
+    if (manager.isSuccess()) {
+      // 로컬 스토리지에 수행 결과를 저장한다.
+      saveResults(manager.getExerciseName(), Date.now(), true);
+      // 메시지 UI를 업데이트하다.
+      manager.setMessage('잘했어요!');
       UI.updateMessage(manager.getMessage());
-      mediapipe.resetOnTargetPose();
+
+      setTimeout(() => {
+        window.close();
+      }, 3000);
+    } else {
+      // 1초 후 다음 동작으로 넘어간다.
       setTimeout(() => {
         listen();
       }, 1000);
-    });
-  } else if (tgtEvent === TARGET_POSE_SQUAT_1) {
-    mediapipe.setOnTargetPose(TARGET_POSE_SQUAT_1, (tgt, diff) => {
-      tgtEvent = TARGET_POSE_SQUAT_0;
-      manager.incrementCount();
-      UI.updateCount(manager.getCount());
-      manager.setMessage('일어나');
-      UI.updateMessage(manager.getMessage());
-      mediapipe.resetOnTargetPose();
-
-      if (manager.isSuccess()) {
-        saveResults('squat', Date.now(), true);
-        manager.setMessage('잘했어요!');
-        UI.updateMessage(manager.getMessage());
-
-        setTimeout(() => {
-          window.close();
-        }, 4000);
-      } else {
-        setTimeout(() => {
-          listen();
-        }, 1000);
-      }
-    });
-  }
+    }
+  });
 };
 listen();
 
@@ -134,7 +146,7 @@ const animate = (cameraControl: OrbitControls, spheres: Mesh[], lines: Line[]) =
     const deltaTime = clock.getDelta();
     // render time
     if (deltaTime >= 0.033) {
-      console.warn('성능부족, 30FPS 보장못함', time, deltaTime);
+      // console.warn('성능부족, 30FPS 보장못함', time, deltaTime);
     }
     renderer.render(scene, camera);
     requestAnimationFrame(render);
