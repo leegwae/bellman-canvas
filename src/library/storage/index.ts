@@ -8,7 +8,10 @@ const KEY_SETTINGS = 'settings';
 
 export const setTempSettings = () => {
   const courses: Course[] = [{
-    exerciseName: '스쿼트', exercise: 'squat', repeat: 3, id: '',
+    exerciseName: '숨쉬기 운동', exercise: 'breathing', repeat: 3, id: '',
+  },
+  {
+    exerciseName: '스쿼트', exercise: 'squat', repeat: 2, id: '',
   }];
 
   localStorage.setItem(KEY_SETTINGS, JSON.stringify({ courses, interval: 0, playSound: true }));
