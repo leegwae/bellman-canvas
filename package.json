@@ -5,8 +5,8 @@
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack serve --open --config webpack.config.js",
-    "build": "webpack"
+    "start": "cross-env NODE_ENV=development webpack serve --open --config webpack.config.js",
+    "build": "cross-env NODE_ENV=production webpack-cli --config webpack.config.js"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +20,7 @@
     "@typescript-eslint/parser": "^5.2.0",
     "babel-loader": "^8.2.2",
     "copy-webpack-plugin": "^9.0.1",
+    "cross-env": "^7.0.3",
     "css-loader": "^6.4.0",
     "eslint": "^7.32.0",
     "eslint-config-airbnb-base": "^14.2.1",
