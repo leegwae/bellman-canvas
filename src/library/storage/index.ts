@@ -11,7 +11,7 @@ export const setTempSettings = () => {
     exerciseName: '숨쉬기 운동', exercise: 'breathing', repeat: 3, id: '',
   },
   {
-    exerciseName: '스쿼트', exercise: 'squat', repeat: 2, id: '',
+    exerciseName: '옆구리 운동', exercise: 'side', repeat: 2, id: '',
   }];
 
   localStorage.setItem(KEY_SETTINGS, JSON.stringify({ courses, interval: 0, playSound: true }));
