@@ -6,7 +6,7 @@ export const TARGET_POSE_BREATHING_0 : TargetPose = {
   code: 'TARGET_POSE_BREATHING_0',
   similarityGoal: 0.05,
   signature: [
-    // { id: 0, value: 0.5412 },
+    { id: 0, value: 0.5412 },
     { id: 1, value: 0.2406 },
     { id: 2, value: 0.5606 },
     { id: 3, value: 0.3018 },
@@ -88,6 +88,6 @@ export const TARGET_POSE_BREATHING = [
 export const MESSAGE_BREATHING = [
   '두 팔을 앞으로 쭉 내미세요',
   '두 팔을 수직으로 쭉 들어올리세요',
-  '두 팔을 내려 일자가 되게 하세요.',
+  '두 팔을 내려 수평이 되게 하세요.',
   '편안하게 두 팔을 허리 옆으로 내려놓으세요',
 ];

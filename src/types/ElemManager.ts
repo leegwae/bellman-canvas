@@ -52,8 +52,8 @@ class ElemManager {
     if (elem === null) return;
 
     // 기존에 만들어진 원을 삭제한다.
-    for (let idx = 0; idx < elem.children.length; idx++) {
-      elem.removeChild(elem.children[idx]);
+    while (elem.firstChild) {
+      elem.removeChild(elem.firstChild);
     }
 
     this.count.setContent(newGoal);

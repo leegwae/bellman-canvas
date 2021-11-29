@@ -29,7 +29,7 @@ const manager = new ExcerciseManager();
 setTempSettings();
 
 const courses: Course[] | null = getCourseSettings();
-const curCourseIdx = 0;
+let curCourseIdx = 0;
 let curPoseIdx = 0;
 let messages: string[];
 let targetEvents: TargetPose[];
@@ -66,7 +66,7 @@ initContent();
 const listen = () => {
   mediapipe.setOnTargetPose(targetEvent, (tgt, diff) => {
     // 현재 취하고 있는 동작이 운동의 마지막 동작이라면 카운트를 올린다.
-    if (curPoseIdx + 1 === targetEvents.length) {
+    if (curPoseIdx === targetEvents.length - 1) {
       manager.incrementCount();
       UI.updateCount(manager.getCount());
     }
@@ -89,9 +89,15 @@ const listen = () => {
       manager.setMessage('잘했어요!');
       UI.updateMessage(manager.getMessage());
 
-      setTimeout(() => {
-        window.close();
-      }, 3000);
+      if (curCourseIdx + 1 === courses?.length) {
+        setTimeout(() => {
+          window.close();
+        }, 3000);
+      } else {
+        curCourseIdx += 1;
+        initContent();
+        listen();
+      }
     } else {
       // 1초 후 다음 동작으로 넘어간다.
       setTimeout(() => {
