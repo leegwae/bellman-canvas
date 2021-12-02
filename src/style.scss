@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -5,6 +7,7 @@
 
 body {
   cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans KR', 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 canvas {
@@ -29,23 +32,24 @@ canvas {
 
   &.bottom {
     bottom: 0;
-
-    display: flex;
-    justify-content: space-between;
   }
 }
 
-#course {
-  font-size: 40px;
-  font-weight: 700;
+#exercise-name {
+  padding: 10px;
+  font-size: 25px;
+  font-weight: 200;
+  color: white;
+
+  border-radius: 5px;
+  background-color: #0000FF;
 }
 
 h1 {
-  width: 100%;
   text-align: center;
-
   font-size: 70px;
   font-weight: 700;
+  color: white;
 }
 
 .panel {
@@ -54,15 +58,15 @@ h1 {
 }
 
 #count {
-  flex: 1;
+  width: 100%;
   display: flex;
-  justify-content: space-around;
-  align-items: flex-end;
+  justify-content: center;
 }
 
 .circle {
-  width: 50px;
-  height: 50px;
+  margin-right: 80px;
+  width: 80px;
+  height: 80px;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   border-radius: 50%;
 
@@ -70,5 +74,9 @@ h1 {
 
   &.active {
     background-color: #00ff00ff;
+  }
+
+  &:last-child {
+    margin-right: 0;
   }
 }
