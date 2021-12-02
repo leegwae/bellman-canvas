@@ -1,24 +1,8 @@
 import '@src/style.scss';
-import {
-  Clock,
-  Mesh,
-  DirectionalLight,
-  Line,
-  IcosahedronGeometry,
-  MeshPhongMaterial,
-  LineBasicMaterial,
-  Vector3,
-  BufferGeometry,
-} from 'three';
-import camera from '@library/camera';
-import scene from '@library/scene';
-import plane from '@library/plane';
-import renderer from '@library/renderer';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { SceneManager } from '@library/scene';
 import mediapipe, { TargetPose, EXERCISE_POSE, EXERCISE_MESSAGE } from '@library/mediapipe';
-import { POSE_CONNECTIONS } from '@mediapipe/pose';
 import {
-  setTempSettings, Course, getCourseSettings, saveResults, clearResults,
+  setTempSettings, Course, getCourseSettings, saveResults
 } from '@library/storage';
 import ElemManager from '@src/types/ElemManager';
 import ExcerciseManager from '@src/types/ExerciseManager';
@@ -102,116 +86,96 @@ const listen = () => {
 };
 listen();
 
-const clock = new Clock();
+interface XYZ {
+  x: number
+  y: number
+  z: number
+}
 
-const animate = (cameraControl: OrbitControls, spheres: Mesh[], lines: Line[]) => {
-  const render = (time = 0) => {
-    const CurrentPose = mediapipe.GetCurrentPose();
+const Center = (a: XYZ, b: XYZ) => {
+  return {
+    x: (a.x + b.x) / 2,
+    y: (a.y + b.y) / 2,
+    z: (a.z + b.z) / 2
+  }
+}
 
-    // model animation
-    if (CurrentPose.raw !== undefined) {
-      CurrentPose.raw.poseLandmarks?.forEach((ptr: any, i: any) => {
-        if (spheres[i]) {
-          const x = ptr.x * 1.5;
-          const y = (1 - ptr.y) * 1.5;
-          const z = -ptr.z * 1.5;
-          spheres[i].position.set(x, y, z);
-        }
-      });
-      POSE_CONNECTIONS.forEach((val, i) => {
-        const [a, b] = val;
-        if (lines[i] && spheres[a] && spheres[b]) {
-          lines[i].geometry.attributes.position.setXYZ(
-            0,
-            spheres[a].position.x,
-            spheres[a].position.y,
-            spheres[a].position.z,
-          );
-          lines[i].geometry.attributes.position.setXYZ(
-            1,
-            spheres[b].position.x,
-            spheres[b].position.y,
-            spheres[b].position.z,
-          );
-          // eslint-disable-next-line no-param-reassign
-          lines[i].geometry.attributes.position.needsUpdate = true;
-        }
-      });
+const Transform = (a: XYZ) => {
+  return {
+    x: a.x * 100,
+    y: -a.y * 100 - 40,
+    z: - a.z * 100
+  }
+}
+const init = async () => {
+
+  await mediapipe.Load(document.getElementById("debug-panel") as HTMLCanvasElement);
+
+  const canvas = document.createElement("canvas")
+  document.body.append(canvas)
+  const scene = new SceneManager(canvas, () => {
+    const pose = mediapipe.GetCurrentPose()
+    if (pose.raw === undefined || !pose.hasPoseData) {
+      return null
     }
-    // camera
-    // TODO (@이완해): 이게 정식방법은 아닌거 같은데, 일단 작동은 하니깐 좀 방치해두고 나중에 (중간발표 이후에) 개선해두겠습니다.
-    cameraControl.target = spheres[0].position;
-    cameraControl.update();
+    const l = pose.raw.poseWorldLandmarks.map(e => Transform(e))
 
-    const deltaTime = clock.getDelta();
-    // render time
-    if (deltaTime >= 0.033) {
-      // console.warn('성능부족, 30FPS 보장못함', time, deltaTime);
+    const tmp = {
+      head: {
+        position: Center(l[11], l[12]),
+        lookAt: Center(l[7], l[8]),
+      },
+      body: {
+        position: Center(l[11], l[12]),
+        lookAt: Center(l[23], l[24]),
+      },
+      right_upper_arm: {
+        position: l[11],
+        lookAt: l[13]
+      },
+      right_lower_arm: {
+        position: l[13],
+        lookAt: l[15]
+      },
+      left_upper_arm: {
+        position: l[12],
+        lookAt: l[14]
+      },
+      left_lower_arm: {
+        position: l[14],
+        lookAt: l[16]
+      },
+
+      right_upper_leg: {
+        position: l[23],
+        lookAt: l[25]
+      },
+      right_lower_leg: {
+        position: l[25],
+        lookAt: l[27]
+      },
+      left_upper_leg: {
+        position: l[24],
+        lookAt: l[26]
+      },
+      left_lower_leg: {
+        position: l[26],
+        lookAt: l[28]
+      }
     }
-    renderer.render(scene, camera);
-    requestAnimationFrame(render);
-  };
-  render();
+    return tmp
+  })
+
+
+  const resize = () => {
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+    scene.resizeScreen()
+  }
+  resize()
+  window.addEventListener('resize', resize);
+
+  scene.Start()
 };
 
-const onWindowResize = () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-
-  renderer.setSize(window.innerWidth, window.innerHeight);
-};
-
-const initCanvas = async () => {
-  await mediapipe.Load(UI.getDebugPanel());
-  // light
-  const dirLight = new DirectionalLight(0xffffff);
-  dirLight.position.set(3, 10, 10);
-  dirLight.castShadow = true;
-  dirLight.shadow.camera.top = 2;
-  dirLight.shadow.camera.bottom = -2;
-  dirLight.shadow.camera.left = -2;
-  dirLight.shadow.camera.right = 2;
-  dirLight.shadow.camera.near = 0.1;
-  dirLight.shadow.camera.far = 40;
-
-  scene.add(dirLight);
-
-  // ground
-  scene.add(plane);
-
-  // model
-  const geometry = new IcosahedronGeometry(0.05);
-  const material = new MeshPhongMaterial({
-    color: '#38d9a9',
-  });
-  const spheres = [...Array(31)].map(() => {
-    const s = new Mesh(geometry, material);
-    scene.add(s);
-    return s;
-  });
-
-  const lineMaterial = new LineBasicMaterial({ color: 0x0000ff });
-  const lines = POSE_CONNECTIONS.map(() => {
-    const lineGeometry = new BufferGeometry().setFromPoints([
-      new Vector3(0, 0, 0),
-      new Vector3(0, 0, 0),
-    ]);
-    const line = new Line(lineGeometry, lineMaterial);
-    scene.add(line);
-    return line;
-  });
-
-  // camera
-  camera.position.set(0, 2, 5);
-  const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enablePan = true;
-  controls.enableZoom = true;
-  controls.target.set(0, 1.8, 0);
-
-  document.body.appendChild(renderer.domElement);
-
-  window.addEventListener('resize', onWindowResize);
-  animate(controls, spheres, lines);
-};
-
-(async () => await initCanvas())();
+(async () => await init())();
