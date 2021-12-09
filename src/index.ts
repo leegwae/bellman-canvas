@@ -10,8 +10,6 @@ import ExcerciseManager from '@src/types/ExerciseManager';
 const UI = new ElemManager();
 const manager = new ExcerciseManager();
 
-setTempSettings();
-
 const courses: Course[] | null = getCourseSettings();
 let curCourseIdx = 0;
 let curPoseIdx = 0;
