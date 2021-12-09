@@ -78,12 +78,12 @@ export class SceneManager {
 
         // camera orbit
         this.control = new OrbitControls(this.camera, this.canvasElem);
-        this.control.target.set(0, 0, 0);
+        this.control.target.set(0, -10, 0);
         this.control.update();
 
         // scene
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color('white')
+        scene.background = new THREE.Color('black')
         {
             // debug
             this.debug = NewDummyMesh()
