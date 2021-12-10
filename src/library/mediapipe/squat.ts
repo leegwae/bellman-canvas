@@ -41,6 +41,6 @@ const TARGET_POSE_SQUAT_1 : TargetPose = {
   ],
 };
 
-export const TARGET_POSE_SQUAT = [TARGET_POSE_SQUAT_0, TARGET_POSE_SQUAT_1];
+export const TARGET_POSE_SQUAT = [TARGET_POSE_SQUAT_1, TARGET_POSE_SQUAT_0];
 
-export const MESSAGE_SQUAT = ['쭈그려', '일어나'];
+export const MESSAGE_SQUAT = ['두 발을 어깨 너비로 벌리고 팔짱 낀 채 천천히 앉으세요', '천천히 일어나세요'];

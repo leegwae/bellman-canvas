@@ -2,13 +2,15 @@ import '@src/style.scss';
 import { SceneManager } from '@library/scene';
 import mediapipe, { TargetPose, EXERCISE_POSE, EXERCISE_MESSAGE } from '@library/mediapipe';
 import {
-  setTempSettings, Course, getCourseSettings, saveResults
+  setTempSettings, Course, getCourseSettings, saveResults,
 } from '@library/storage';
 import ElemManager from '@src/types/ElemManager';
 import ExcerciseManager from '@src/types/ExerciseManager';
 
 const UI = new ElemManager();
 const manager = new ExcerciseManager();
+
+// setTempSettings();
 
 const courses: Course[] | null = getCourseSettings();
 let curCourseIdx = 0;
