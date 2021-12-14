@@ -1,5 +1,7 @@
 # bellman-canvas
 
+Canvas for [Bellman](https://github.com/syd03098/bellman)
+
 ## 시작하기
 
 ```bash
@@ -10,13 +12,3 @@ npm start
 ```
 
 go to http://localhost:8080/
-
-
-
-## TODO
-
-- [ ] loading scss
-- [ ] prettier, eslint
-- [ ] .gitignore 작성
-- [ ] webpack.prod.js 작성
-- [ ] 기타 보충
